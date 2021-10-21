@@ -4,6 +4,7 @@ import {
   UpdateLoanMutation,
   UpdateLoanMutation_updateLoan,
 } from 'gql-api/__generated__/UpdateLoanMutation'
+import { LoanStatus } from '../graphql/__generated__/resolvers-types'
 
 const UPDATE_LOAN = gql`
   mutation UpdateLoanMutation($id: Int!, $newStatus: LoanStatus!) {
@@ -17,15 +18,15 @@ const UPDATE_LOAN = gql`
 /**
  * Hook to update the status of a loan
  */
-export function useUpdateLoan(): () => Promise<
+export function useUpdateLoan(): (id: number, newStatus: LoanStatus) => Promise<
   [loan?: UpdateLoanMutation_updateLoan, errors?: readonly GraphQLError[]]
 > {
-  const [openLoan] = useMutation<UpdateLoanMutation>(UPDATE_LOAN, {
+  const [updateLoan] = useMutation<UpdateLoanMutation>(UPDATE_LOAN, {
     errorPolicy: 'all',
   })
 
-  return async () => {
-    const result = await openLoan()
+  return async (id: number, newStatus: LoanStatus) => {
+    const result = await updateLoan({variables: {id, newStatus}})
 
     if (result.errors) {
       console.error(
